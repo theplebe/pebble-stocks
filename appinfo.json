@@ -12,6 +12,12 @@
     "dummy": 0
   },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "font",
+        "name": "FONT_ROBOTO_BOLD_20",
+        "file": "fonts/ROBOTO_BOLD_20.ttf"
+      }
+    ]
   }
 }
