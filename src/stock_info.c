@@ -62,10 +62,10 @@ static void set_stock_value_str()
 
    if (stock_start_value != 0)
       snprintf(str_stock_value, sizeof(str_stock_value),
-               "%+d.%02d (%%%+d.%02d)", int_part, frac_part);
+               "%+d.%02d (%%%+d.%02d)", int_pc, frc_pc, int_ab, frc_ab);
    else
       snprintf(str_stock_value, sizeof(str_stock_value),
-               "%+d.%02d (%%-----)", int_part);
+               "%+d.%02d (%%-----)", int_pc, frc_pc);
    text_layer_set_text(text_stock_value, str_stock_value);
 }
 
@@ -84,7 +84,6 @@ static void down_click_handler(ClickRecognizerRef recognizer, void *context)
 
 static void click_config_provider(void *context)
 {
-   window_single_click_subscribe(BUTTON_ID_SELECT, select_click_handler);
    window_single_click_subscribe(BUTTON_ID_UP, up_click_handler);
    window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
