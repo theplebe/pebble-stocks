@@ -1,0 +1,17 @@
+{
+  "uuid": "c8df6bd3-893f-4af2-95fa-11731d1c4f80",
+  "shortName": "stockwatch",
+  "longName": "stockwatch",
+  "companyName": "MakeAwesomeHappen",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
