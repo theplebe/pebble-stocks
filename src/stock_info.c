@@ -1,8 +1,10 @@
 #include <pebble.h>
+#include "stock_info.h"
 
 //144 x 168
 
 #define GRAPH_SIZE 20
+
 
 static Window *window;
 static TextLayer *text_stock_name;
@@ -16,7 +18,7 @@ static GPoint graph_points[GRAPH_SIZE+2];
 static GPathInfo graph_info = { GRAPH_SIZE+2, graph_points };
 static GPath* graph;
 
-static GFont font_stock_name;
+//static GFont font_stock_name;
 
 static void init_graph()
 {
@@ -38,8 +40,14 @@ static void graph_draw(struct Layer* layer, GContext* ctx)
 
 static void set_stock_value_str()
 {
-   float percent = 100.0f*(stock_current_value-stock_start_value)/
+   float percent;
+   if (stock_start_value != 0)
+   {
+      percent = 100.0f*(stock_current_value-stock_start_value)/
                      stock_start_value;
+   }
+   else
+      percent = 0;
    float absolute = stock_current_value-stock_start_value;
 
    int dec_pc = (int)(percent*100);
@@ -52,24 +60,26 @@ static void set_stock_value_str()
    if (dec_ab < 0) dec_ab = -dec_ab;
    int frc_ab = dec_ab%100;
 
-   snprintf(str_stock_value, sizeof(str_stock_value),
-            "%+d.%02d (%%%+d.%02d)", int_part, frac_part);
+   if (stock_start_value != 0)
+      snprintf(str_stock_value, sizeof(str_stock_value),
+               "%+d.%02d (%%%+d.%02d)", int_part, frac_part);
+   else
+      snprintf(str_stock_value, sizeof(str_stock_value),
+               "%+d.%02d (%%-----)", int_part);
    text_layer_set_text(text_stock_value, str_stock_value);
 }
 
-static void select_click_handler(ClickRecognizerRef recognizer, void *context)
-{
-   set_stock_value_str();
-}
 static void up_click_handler(ClickRecognizerRef recognizer, void *context)
 {
    stock_current_value+=1;
    set_stock_value_str();
+   //TODO: Go to previous stock symbol
 }
 static void down_click_handler(ClickRecognizerRef recognizer, void *context)
 {
    stock_current_value-=1;
    set_stock_value_str();
+   //TODO: Go to next stock symbol
 }
 
 static void click_config_provider(void *context)
@@ -93,10 +103,10 @@ static void window_load(Window *window)
    text_layer_set_text_alignment(text_stock_name, GTextAlignmentCenter);
    text_layer_set_background_color(text_stock_name, GColorBlack);
    text_layer_set_text_color(text_stock_name, GColorWhite);
-   text_layer_set_font(text_stock_name, font_stock_name);
+   //text_layer_set_font(text_stock_name, font_stock_name);
 
 
-   //Stock name (at the top)
+   //Stock value (at the bottom)
    text_stock_value = text_layer_create((GRect) {
          .origin = { 8, bounds.size.h-28 },
          .size = { bounds.size.w-16, 20 }
@@ -117,12 +127,8 @@ static void window_unload(Window *window)
    gpath_destroy(graph);
 }
 
-void stock_info_get_window(void)
-{
-   return window;
-}
-
-static void stock_info_init(void)
+/*Initialize the stock info page*/
+void stock_info_init(void)
 {
    //Create window
    window = window_create();
@@ -136,27 +142,32 @@ static void stock_info_init(void)
 
    graph = gpath_create(&graph_info);
 
-   font_stock_name = fonts_load_custom_font(
-         resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_20));
+   //font_stock_name = fonts_load_custom_font(
+   //      resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_20));
 
 
-   strcpy(str_stock_name, "FB");
-   stock_current_value = 123.45;
-   stock_start_value = 120;
+   strcpy(str_stock_name, "???");
+   stock_current_value = 0;
+   stock_start_value = 0;
 
    window_stack_push(window, true);
 }
 
-static void stock_info_deinit(void)
+/*Destroy the stock info page*/
+void stock_info_deinit(void)
 {
    window_destroy(window);
 }
 
-/*int main(void) {
-   init();
+/*Get the stock info page window*/
+Window* stock_info_get_window(void)
+{
+   return window;
+}
 
-   APP_LOG(APP_LOG_LEVEL_DEBUG, "Done initializing, pushed window: %p", window);
-
-   app_event_loop();
-   deinit();
-}*/
+/*Sets the symbol for the stock page*/
+void stock_info_set_symbol(char* symbol)
+{
+   strncpy(str_stock_name, symbol, sizeof(str_stock_name)-1);
+   //TODO: Get info based on symbol
+}
